@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/employees', async (req, res) => {
   try {
     const SQL = /* sql */ `
-      SELECT * FROM employees;
+      SELECT id, name, phone, isadmin AS "isAdmin" FROM employees;
       `
     const response = await client.query(SQL);
     console.log('response: ', response);
@@ -37,6 +37,23 @@ app.get('/employees', async (req, res) => {
 
   }
   
+});
+
+app.post('/employees', async (req, res) => {
+  try {
+    const { name, phone, isAdmin } = req.body;
+    const SQL = `
+      INSERT INTO employees(name, phone, isAdmin)
+      VALUES($1, $2, $3)
+      RETURNING *;
+    `;
+    const response = await client.query(SQL, [name, phone, isAdmin]);
+    // Return the newly inserted record
+    res.send(response.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error inserting employee');
+  }
 });
 
 const init = async() => {
@@ -48,10 +65,10 @@ const init = async() => {
       id SERIAL PRIMARY KEY,
       name VARCHAR(255),
       phone VARCHAR(15),
-      is_admin BOOLEAN DEFAULT FALSE
+      isAdmin BOOLEAN DEFAULT FALSE
     );
-    INSERT INTO employees(name, phone, is_admin)
-      VALUES ('John Doe', '555-1234', false);
+    INSERT INTO employees(name, phone, isAdmin) VALUES ('John Doe', '555-1234', 'false');
+    INSERT INTO employees(name, phone, isAdmin) VALUES ('James Barnes', '555-4321', 'true');
   `
   await client.query(SQL);
 
