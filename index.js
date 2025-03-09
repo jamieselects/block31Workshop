@@ -50,7 +50,7 @@ const init = async() => {
       contact VARCHAR(15),
       is_admin BOOLEAN DEFAULT FALSE
     );
-    INSERT INTO employees(name, phone, is_admin)
+    INSERT INTO employees(name, contact, is_admin)
       VALUES ('John Doe', '555-1234', false);
   `
   await client.query(SQL);
